@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+set -e
+
+GITHUB_WORKFLOW_NO_KEY_WARNING="WARNING: Using GITHUB_TOKEN instead of Deploy Key. Github Action Workflows will not be triggered."
+PR_BODY_TEXT=${PR_BODY_TEXT:-This Automated PR updates the requirements.txt files to the latest versions. As this is automated it should be reviewed for errors before merging.}
+
+# Configure git
+echo Configuring git
+
+## Needed to work around permissions issues.
+git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+git config --global --add safe.directory /github/workspace
+
+## User must be configured to commit.
+git config --global user.name "${GITHUB_USERNAME:-$GITHUB_ACTOR}"
+git config --global user.email "${GITHUB_USERNAME:-$GITHUB_ACTOR}@users.noreply.github.com"
+
+## Configure Remote
+if [[ -z $DEPLOY_KEY ]]; then
+  # If no deploy key is added fall back to the access token
+  echo $GITHUB_WORKFLOW_NO_KEY_WARNING
+  git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+  PR_BODY_TEXT="${PR_BODY_TEXT} \n\n $GITHUB_WORKFLOW_NO_KEY_WARNING"
+else
+  KEY_PATH=~/.ssh/github_actions
+  mkdir -p ~/.ssh
+  touch $KEY_PATH
+  chmod 600 $KEY_PATH
+  echo "$DEPLOY_KEY" > $KEY_PATH
+  ssh-add $KEY_PATH
+  ssh-keyscan github.com >> ~/.ssh/known_hosts
+fi
+
+# Switch Branches
+NEW_BRANCH_NAME=${BRANCH_PREFIX:-"pip-update"}-$(date +%s)
+echo Creating and switching to branch $NEW_BRANCH_NAME.
+git checkout -b $NEW_BRANCH_NAME
+
+
+# Run pip-tools
+
+## Generate CLI arguments
+PIP_COMPILE_ARGS="--upgrade"
+if [[ ! -z $PIP_ARGS ]]; then
+  PIP_COMPILE_ARGS="$PIP_COMPILE_ARGS --pip-args $PIP_ARGS"
+fi
+
+if [[ ! -z $INDEX_URL ]]; then
+  PIP_COMPILE_ARGS="$PIP_COMPILE_ARGS --index-url $INDEX_URL"
+fi
+
+if [[ ! -z $ALLOW_PRERELEASE ]] && [[ $ALLOW_PRERELEASE == "true"]]; then
+  PIP_COMPILE_ARGS="$PIP_COMPILE_ARGS --pre"
+fi
+
+## Base Requirements- available on all projects.
+pip-compile $PIP_COMPILE_ARGS --output-file requirements.txt
+
+## Iterate over User Supplied Extras and create dedicated files for each.
+if [[ ! -z $PIP_EXTRAS ]] ; then
+  for extra in ${PIP_EXTRAS-:}
+  do
+    echo "Building lockfile for extra $extra"
+    pip-compile $PIP_COMPILE_ARGS --extra $extra --output-file requirements-$extra.txt
+  done
+fi
+
+# Add any changed file.
+echo "Adding changes to git."
+git add requirements*
+
+
+if [[ ! -z $(git status -s) ]]; then
+  echo "Committing changes to git and pushing to Github."
+  git commit -m ${COMMIT_MESSAGE:-"Updating versions for python lockfiles."}
+  git push
+else
+  echo "No updates to push- your lockfiles were already up to date."
+  exit 0
+fi
+
+
+
+set -x
+echo "Creating Pull Request."
+echo $GITHUB_TOKEN | gh auth login --with-token
+echo -e $PR_BODY_TEXT | gh pr create --base ${BASE_BRANCH:-main} --title "${PR_TITLE:-Automated Requirements File Updates}" -F -

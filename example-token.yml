@@ -1,0 +1,33 @@
+name: Update Dependencies and Push to Github
+
+on:
+  push:
+    paths:
+      # On push if the example file has changed.
+      - '.github/workflows/example-token.yml'
+  schedule:
+      # Every Monday at 1PM UTC (9AM EST)
+    - cron: "0 13 * * 1"
+
+jobs:
+  push-updates-with-token:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: "Update Lockfiles and Open PR"
+        uses: aptible/action-python-lockfile-update
+        with:
+          # Each "extra" is space separated.
+          # This actions will end up with three files
+          # * requirements.txt
+          # * requirements-testing.txt
+          # * requirements-sqs.txt
+          pip_extras: "testing sqs"
