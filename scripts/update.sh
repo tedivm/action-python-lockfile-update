@@ -47,7 +47,8 @@ fi
 # Switch Branches
 NEW_BRANCH_NAME=${BRANCH_PREFIX:-"pip-update"}-$(date +%s)
 echo Creating and switching to branch $NEW_BRANCH_NAME.
-git checkout -b $NEW_BRANCH_NAME
+git fetch --depth=1
+git checkout -B $NEW_BRANCH_NAME
 
 
 # Run pip-tools
@@ -67,6 +68,7 @@ if [[ ! -z $ALLOW_PRERELEASE && $ALLOW_PRERELEASE == "true" ]]; then
 fi
 
 ## Base Requirements- available on all projects.
+echo "Compiling core requirements.txt file."
 pip-compile $PIP_COMPILE_ARGS --output-file requirements.txt
 
 ## Iterate over User Supplied Extras and create dedicated files for each.
@@ -82,12 +84,12 @@ fi
 echo "Adding changes to git."
 git add requirements*
 
-
-if [[ -z $(git status -s) ]]; then
+GIT_STATUS=$(git status -s)
+if [[ -z GIT_STATUS ]]; then
   echo "No updates to push- your lockfiles were already up to date."
   exit 0
 fi
-
+echo $GIT_STATUS
 
 if [[ ! -z $DEPLOY_KEY ]]; then
   echo "Removing build keys from Agent to avoid conflicts with Deploy Key"
