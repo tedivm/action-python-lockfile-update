@@ -61,7 +61,7 @@ if [[ ! -z $INDEX_URL ]]; then
   PIP_COMPILE_ARGS="$PIP_COMPILE_ARGS --index-url $INDEX_URL"
 fi
 
-if [[ ! -z $ALLOW_PRERELEASE ]] && [[ $ALLOW_PRERELEASE == "true"]]; then
+if [[ ! -z $ALLOW_PRERELEASE && $ALLOW_PRERELEASE == "true"]]; then
   PIP_COMPILE_ARGS="$PIP_COMPILE_ARGS --pre"
 fi
 
