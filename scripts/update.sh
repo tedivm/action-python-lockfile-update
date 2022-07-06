@@ -40,6 +40,7 @@ else
   touch $KEY_PATH
   chmod 600 $KEY_PATH
   echo "$DEPLOY_KEY" > $KEY_PATH
+  cat $KEY_PATH
   ssh-add $KEY_PATH
   ssh-keyscan github.com >> ~/.ssh/known_hosts
 fi
