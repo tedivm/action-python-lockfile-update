@@ -3,6 +3,8 @@ set -e
 
 GITHUB_WORKFLOW_NO_KEY_WARNING="WARNING: Using GITHUB_TOKEN instead of Deploy Key. Github Action Workflows will not be triggered."
 PR_BODY_TEXT=${PR_BODY_TEXT:-This Automated PR updates the requirements.txt files to the latest versions. As this is automated it should be reviewed for errors before merging.}
+PR_TITLE=${PR_TITLE:-Automated Requirements File Updates}
+COMMIT_MESSAGE=${COMMIT_MESSAGE:-Updating versions for python lockfiles.}
 
 # Configure git
 echo Configuring git
@@ -103,11 +105,11 @@ if [[ ! -z $DEPLOY_KEY ]]; then
 fi
 
 echo "Committing changes to git and pushing to Github."
-git commit -m ${COMMIT_MESSAGE:-"Updating versions for python lockfiles."}
+git commit -m "$COMMIT_MESSAGE"
 git push
 
 
 set -x
 echo "Creating Pull Request."
 echo $GITHUB_TOKEN | gh auth login --with-token
-echo -e $PR_BODY_TEXT | gh pr create --base ${BASE_BRANCH:-main} --title "${PR_TITLE:-Automated Requirements File Updates}" -F -
+echo -e $PR_BODY_TEXT | gh pr create --base ${BASE_BRANCH:-main} --title "$PR_TITLE" -F -
