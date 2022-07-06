@@ -37,8 +37,9 @@ else
   git remote set-url origin git@github.com:${GITHUB_REPOSITORY}.git
 
   echo "Adding Private Key to Agent"
-  ssh-add - <<< "$DEPLOY_KEY" || true
-  ssh-add -l
+  ssh-add - <<< "$DEPLOY_KEY"
+
+  mkdir ~/.ssh/
   ssh-keyscan github.com >> ~/.ssh/known_hosts
 fi
 
