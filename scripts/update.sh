@@ -25,6 +25,7 @@ else
 
   echo "Starting SSH Agent"
   ssh-agent
+  sleep 2
 
   echo "Configuring Git for SSH"
   git remote set-url origin git@github.com:${GITHUB_REPOSITORY}.git
