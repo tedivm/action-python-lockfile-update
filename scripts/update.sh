@@ -23,9 +23,15 @@ if [[ -z $DEPLOY_KEY ]]; then
   PR_BODY_TEXT="${PR_BODY_TEXT} \n\n $GITHUB_WORKFLOW_NO_KEY_WARNING"
 else
 
-  echo "Starting SSH Agent"
-  ssh-agent
-  sleep 2
+  if [[ -z $SSH_AUTH_SOCK ]]
+  then
+    echo "Starting SSH Agent"
+    echo "SSH_AUTH_SOCK=/tmp/ssh_auth.sock" >> $GITHUB_ENV
+    ssh-agent -a /tmp/ssh_auth.sock > /dev/null
+    export SSH_AUTH_SOCK=/tmp/ssh_auth.sock
+  else
+    echo "Agent is already running."
+  fi
 
   echo "Configuring Git for SSH"
   git remote set-url origin git@github.com:${GITHUB_REPOSITORY}.git
