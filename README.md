@@ -2,6 +2,8 @@
 
 This action uses `pip-tools` to automatically build and update the `requirements.txt` files for a Python project. It will create not only the core `requirements.txt` but also any `extra` dependencies and files that are specified.
 
+The updates are be committed to a brand new branch and this action makes a Pull Request for review. This pull request will trigger all workflows associated with the repository- the action uses an optional deploy key to avoid the issue where commits made by Github Actions do not trigger workflows.
+
 ## Examples
 
 * [Without a Deploy Key](./example-token.yml)
