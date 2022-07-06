@@ -1,22 +1,22 @@
 name: Update Dependencies and Push to Github
 
 on:
+  # Allow API to be hit to trigger workflow.
+  workflow_dispatch:
+
+  # Run on push only if this file has changed.
   push:
     paths:
-      # On push if the example file has changed.
-      - '.github/workflows/example-key.yml'
+      - '.github/workflows/example-key.yaml'
+
+  # Every Monday at 1PM UTC (7AM EST)
   schedule:
-      # Every Monday at 1PM UTC (9AM EST)
-    - cron: "0 13 * * 1"
+    - cron: "0 11 * * 1"
 
 
 jobs:
-  push-updates-with-key:
+  push-update:
     runs-on: ubuntu-latest
-
-    # Permission is still needed by the token to open the PR.
-    permissions:
-      pull-requests: write
 
     steps:
 
@@ -26,12 +26,11 @@ jobs:
       - name: "Update Lockfiles and Open PR"
         uses: aptible/action-python-lockfile-update@v1
         with:
-          # Each "extra" is space separated.
-          # This actions will end up with three files
-          # * requirements.txt
-          # * requirements-testing.txt
-          # * requirements-sqs.txt
-          pip_extras: "testing sqs"
+          pip_extras: "dev sqs"
 
           # This key will bypass workflow limitations to ensure tests are run.
-          deploy_key: SECRETS.deploy_key
+          deploy_key: ${{ secrets.WRITEABLE_DEPLOY_KEY }}
+
+        env:
+         # Needed to open pull request- automatically set for all actions.
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

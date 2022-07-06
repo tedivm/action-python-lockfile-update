@@ -7,7 +7,7 @@ on:
   # Run on push only if this file has changed.
   push:
     paths:
-      - '.github/workflows/example-token.yaml'
+      - '.github/workflows/example-build.yaml'
 
   # Every Monday at 1PM UTC (7AM EST)
   schedule:
@@ -23,15 +23,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      # This ssh key is for downloading private pip dependencies.
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SECRET_BUILD_KEY }}
+
       - name: "Update Lockfiles and Open PR"
-        uses: aptible/action-python-lockfile-update@v1
+        uses: aptible/action-python-lockfile-update@debugging
         with:
           pip_extras: "dev sqs"
 
-          # Deploy key is not used, so the action token will be used.
-          # This means that tests on the commit will not run.
-          # deploy_key:
+          # This key will bypass workflow limitations to ensure tests are run.
+          deploy_key: ${{ secrets.WRITEABLE_DEPLOY_KEY }}
 
         env:
-         # Needed to open pull request- automatically set for all actions.
+         # Needed to open pull request
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
