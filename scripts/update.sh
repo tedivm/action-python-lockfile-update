@@ -35,13 +35,9 @@ else
 
   echo "Configuring Git for SSH"
   git remote set-url origin git@github.com:${GITHUB_REPOSITORY}.git
-  KEY_PATH=~/.ssh/github_actions
-  mkdir -p ~/.ssh
-  touch $KEY_PATH
-  chmod 600 $KEY_PATH
-  echo "$DEPLOY_KEY" > $KEY_PATH
-  cat $KEY_PATH
-  ssh-add $KEY_PATH
+
+  echo "Adding Private Key to Agent"
+  ssh-add - <<< "$DEPLOY_KEY"
   ssh-keyscan github.com >> ~/.ssh/known_hosts
 fi
 
