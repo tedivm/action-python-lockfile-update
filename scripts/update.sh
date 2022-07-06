@@ -106,8 +106,7 @@ fi
 
 echo "Committing changes to git and pushing to Github."
 git commit -m "$COMMIT_MESSAGE"
-git push
-
+git push --set-upstream origin $NEW_BRANCH_NAME
 
 set -x
 echo "Creating Pull Request."
