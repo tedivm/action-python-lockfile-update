@@ -110,5 +110,4 @@ git push --set-upstream origin $NEW_BRANCH_NAME
 
 set -x
 echo "Creating Pull Request."
-echo $GITHUB_TOKEN | gh auth login --with-token
 echo -e $PR_BODY_TEXT | gh pr create --base ${BASE_BRANCH:-main} --title "$PR_TITLE" -F -
