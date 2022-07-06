@@ -1,6 +1,20 @@
 # Python Lockfile Update
 
-This action uses `pip-tools` to automatically build and update the `requirements.txt` files for a Python project.
+This action uses `pip-tools` to automatically build and update the `requirements.txt` files for a Python project. It will create not only the core `requirements.txt` but also any `extra` dependencies and files that are specified.
+
+## Examples
+
+* [Without a Deploy Key](./example-token.yml)
+* [With a Deploy Key](./example-key.yml)
+* [With a Deploy Key and Build Keys](./example-build.yml)
+
+## Specify Extras
+
+The `extras` argument to the action is a space separated list of extras to build with. Specifying the string `sqs dev` would result in three files-
+
+* requirements.txt
+* requirements-dev.txt
+* requirements-sqs.txt
 
 ## Permissions
 
