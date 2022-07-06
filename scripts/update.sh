@@ -22,6 +22,12 @@ if [[ -z $DEPLOY_KEY ]]; then
   git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
   PR_BODY_TEXT="${PR_BODY_TEXT} \n\n $GITHUB_WORKFLOW_NO_KEY_WARNING"
 else
+
+  echo "Starting SSH Agent"
+  ssh-agent
+
+  echo "Configuring Git for SSH"
+  git remote set-url origin git@github.com:${GITHUB_REPOSITORY}.git
   KEY_PATH=~/.ssh/github_actions
   mkdir -p ~/.ssh
   touch $KEY_PATH

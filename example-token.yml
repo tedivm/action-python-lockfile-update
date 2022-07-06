@@ -20,10 +20,10 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: "Update Lockfiles and Open PR"
-        uses: aptible/action-python-lockfile-update
+        uses: aptible/action-python-lockfile-update@v1
         with:
           # Each "extra" is space separated.
           # This actions will end up with three files
