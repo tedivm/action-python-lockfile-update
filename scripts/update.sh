@@ -15,6 +15,12 @@ git config --global --add safe.directory /github/workspace
 git config --global user.name "${GITHUB_USERNAME:-$GITHUB_ACTOR}"
 git config --global user.email "${GITHUB_USERNAME:-$GITHUB_ACTOR}@users.noreply.github.com"
 
+# In case build keys use Github.
+mkdir -p ~/.ssh/
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+
+
 ## Configure Remote
 if [[ -z $DEPLOY_KEY ]]; then
   # If no deploy key is added fall back to the access token
@@ -22,7 +28,6 @@ if [[ -z $DEPLOY_KEY ]]; then
   git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
   PR_BODY_TEXT="${PR_BODY_TEXT} \n\n $GITHUB_WORKFLOW_NO_KEY_WARNING"
 else
-
   if [[ -z $SSH_AUTH_SOCK ]]
   then
     echo "Starting SSH Agent"
@@ -35,13 +40,9 @@ else
 
   echo "Configuring Git for SSH"
   git remote set-url origin git@github.com:${GITHUB_REPOSITORY}.git
-
-  echo "Adding Private Key to Agent"
-  ssh-add - <<< "$DEPLOY_KEY"
-
-  mkdir ~/.ssh/
-  ssh-keyscan github.com >> ~/.ssh/known_hosts
 fi
+
+
 
 # Switch Branches
 NEW_BRANCH_NAME=${BRANCH_PREFIX:-"pip-update"}-$(date +%s)
@@ -82,15 +83,26 @@ echo "Adding changes to git."
 git add requirements*
 
 
-if [[ ! -z $(git status -s) ]]; then
-  echo "Committing changes to git and pushing to Github."
-  git commit -m ${COMMIT_MESSAGE:-"Updating versions for python lockfiles."}
-  git push
-else
+if [[ -z $(git status -s) ]]; then
   echo "No updates to push- your lockfiles were already up to date."
   exit 0
 fi
 
+
+if [[ ! -z $DEPLOY_KEY ]]; then
+  echo "Removing build keys from Agent to avoid conflicts with Deploy Key"
+  ssh-add -D
+
+  echo "Adding Deploy Key to to Agent"
+  ssh-add - <<< "$DEPLOY_KEY"
+
+  echo "Setting git remote to use SSH"
+  git remote set-url origin git@github.com:${GITHUB_REPOSITORY}.git
+fi
+
+echo "Committing changes to git and pushing to Github."
+git commit -m ${COMMIT_MESSAGE:-"Updating versions for python lockfiles."}
+git push
 
 
 set -x
