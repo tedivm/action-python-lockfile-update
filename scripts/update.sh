@@ -21,8 +21,6 @@ git config --global user.email "${GITHUB_USERNAME:-$GITHUB_ACTOR}@users.noreply.
 mkdir -p ~/.ssh/
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-
-
 ## Configure Remote
 if [[ -z $DEPLOY_KEY ]]; then
   # If no deploy key is added fall back to the access token
@@ -49,7 +47,6 @@ fi
 # Switch Branches
 NEW_BRANCH_NAME=${BRANCH_PREFIX:-"pip-update"}-$(date +%s)
 echo Creating and switching to branch $NEW_BRANCH_NAME.
-git fetch --depth=1
 git checkout -B $NEW_BRANCH_NAME
 
 
