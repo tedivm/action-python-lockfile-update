@@ -41,10 +41,6 @@ inputs:
     required: true
     default: "Automated Requirements File Updates"
 
-  base_branch:
-    description: "The branch to make Pull Requests against."
-    required: true
-    default: "main"
 
 runs:
   using: "composite"
@@ -64,5 +60,4 @@ runs:
         BRANCH_PREFIX: ${{ inputs.branch_prefix }}
         PIP_EXTRAS: ${{ inputs.pip_extras }}
         COMMIT_MESSAGE: ${{ inputs.commit_message }}
-        BASE_BRANCH: ${{ inputs.base_branch }}
         GITHUB_USERNAME: ${{ inputs.github_username }}

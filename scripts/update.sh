@@ -45,6 +45,7 @@ fi
 
 
 # Switch Branches
+START_BRANCH=$(git branch --show-current)
 NEW_BRANCH_NAME=${BRANCH_PREFIX:-"pip-update"}-$(date +%s)
 echo Creating and switching to branch $NEW_BRANCH_NAME.
 git checkout -B $NEW_BRANCH_NAME
@@ -107,4 +108,4 @@ git push --set-upstream origin $NEW_BRANCH_NAME
 
 set -x
 echo "Creating Pull Request."
-echo -e $PR_BODY_TEXT | gh pr create --base ${BASE_BRANCH:-main} --title "$PR_TITLE" -F -
+echo -e $PR_BODY_TEXT | gh pr create --base $START_BRANCH --title "$PR_TITLE" -F -
