@@ -108,4 +108,4 @@ git push --set-upstream origin $NEW_BRANCH_NAME
 
 set -x
 echo "Creating Pull Request."
-echo -e $PR_BODY_TEXT | gh pr create --base $START_BRANCH --title "$PR_TITLE" -F -
+echo -e $PR_BODY_TEXT | gh pr create --base "$START_BRANCH" --title "$PR_TITLE" -F -
