@@ -103,7 +103,9 @@ if [[ ! -z $DEPLOY_KEY ]]; then
 fi
 
 echo "Committing changes to git and pushing to Github."
-git commit -m "$COMMIT_MESSAGE"
+git commit -m "$COMMIT_MESSAGE" || { echo "No changes existed to push." ; exit 0 }
+
+
 git push --set-upstream origin $NEW_BRANCH_NAME
 
 set -x
