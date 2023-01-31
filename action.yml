@@ -1,18 +1,17 @@
-name: 'Python Lockfile Update'
+name: "Python Lockfile Update"
 description: "This action uses pip-tools to update a project's lockfiles via a Pull Request."
 
 branding:
-  icon: 'arrow-up-circle'
-  color: 'purple'
+  icon: "arrow-up-circle"
+  color: "purple"
 
 inputs:
-
   deploy_key:
     description: "A deploy key with write access to the repository. This is required if you wish the PR to trigger workflows, as commits made with the Github Token will not. It is recommended to use a repository locked deploy key."
     required: false
 
   pr_body_text:
-    description: "the Pull Request comment for Pull Requests opened by this action."
+    description: "The Pull Request comment for Pull Requests opened by this action."
     required: true
     default: "This Automated PR updates the requirements.txt files to the latest versions. As this is automated it should be reviewed for errors before merging."
 
@@ -32,20 +31,38 @@ inputs:
     default: "pip-update"
 
   pip_extras:
-    description: "A list, separated by spaces, of `extra` packages to install."
+    description: "A list, separated by spaces, of `extra` packages to install. For example `dev arm` to build lockfiles for dev and arm extras."
     required: false
     default: ""
 
   commit_message:
-    description: "Updating versions for python lockfiles."
+    description: "The commit message used when committing updates to git."
     required: true
     default: "Automated Requirements File Updates"
 
+  allow_prerelease:
+    description: "If set to `true` this will allow prelease versions to be included."
+    required: false
+    default: ""
+
+  index_url:
+    description: "A repository index to use rather than PyPI. This is useful if you are using a private registry."
+    required: false
+    default: ""
+
+  pip_args:
+    description: "Arguments to be passed through to PIP."
+    required: false
+    default: ""
+
+  resolver:
+    description: "The dependency resolver to use. Defaults to the new backtracking algorithm- set to `legacy` for old behavior."
+    required: true
+    default: "backtracking"
 
 runs:
   using: "composite"
   steps:
-
     - name: Install pip-tools
       run: python -m pip install pip-tools
       shell: bash
@@ -61,3 +78,7 @@ runs:
         PIP_EXTRAS: ${{ inputs.pip_extras }}
         COMMIT_MESSAGE: ${{ inputs.commit_message }}
         GITHUB_USERNAME: ${{ inputs.github_username }}
+        ALLOW_PRERELEASE: ${{ inputs.allow_prerelease }}
+        INDEX_URL: ${{ inputs.index_url }}
+        PIP_ARGS: ${{ inputs.pip_args }}
+        RESOLVER: ${{ inputs.resolver }}

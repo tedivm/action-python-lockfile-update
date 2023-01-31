@@ -67,6 +67,10 @@ if [[ ! -z $ALLOW_PRERELEASE && $ALLOW_PRERELEASE == "true" ]]; then
   PIP_COMPILE_ARGS="$PIP_COMPILE_ARGS --pre"
 fi
 
+if [[ ! -z $RESOLVER ]]; then
+  PIP_COMPILE_ARGS="$PIP_COMPILE_ARGS --resolver=$RESOLVER"
+fi
+
 ## Base Requirements- available on all projects.
 echo "Compiling core requirements.txt file."
 pip-compile $PIP_COMPILE_ARGS --output-file requirements.txt

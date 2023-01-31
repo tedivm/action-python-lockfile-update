@@ -27,7 +27,7 @@ jobs:
           ssh-private-key: ${{ secrets.SECRET_BUILD_KEY }}
 
       - name: "Update Lockfiles and Open PR"
-        uses: tedivm/action-python-lockfile-update@v1
+        uses: tedivm/action-python-lockfile-update@v2
         with:
           pip_extras: "dev sqs"
 
